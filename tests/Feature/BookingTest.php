@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -35,10 +36,19 @@ class BookingTest extends TestCase
         $this->assertDatabaseHas('bookings', ['id' => $firstBookingId] + $payload);
     }
 
-    private function bookingPayload(): array
+    public function test_a_slot_that_has_started_is_rejected_using_database_time(): void
     {
-        $this->freezeTime();
-        $start = now('UTC')->addDay()->startOfHour();
+        $start = now('UTC')->startOfSecond();
+        $this->travelTo($start->copy()->subSecond());
+
+        $this->postJson('/api/bookings', $this->bookingPayload($start))->assertConflict();
+
+        $this->assertDatabaseCount('bookings', 0);
+    }
+
+    private function bookingPayload(?CarbonInterface $start = null): array
+    {
+        $start ??= now('UTC')->addDay()->startOfHour();
 
         return [
             'slot_id' => DB::table('slots')->insertGetId([

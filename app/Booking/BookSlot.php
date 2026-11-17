@@ -3,20 +3,19 @@
 namespace App\Booking;
 
 use Illuminate\Database\UniqueConstraintViolationException;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
 class BookSlot
 {
     public function create(int $slotId, string $name, string $email): int
     {
-        // A single write avoids upgrading a held SQLite read transaction under contention.
+        // Read the clock after SQLite acquires the write lock.
         try {
             $booking = DB::selectOne(
                 'INSERT INTO bookings (slot_id, customer_name, customer_email)
-                 SELECT id, ?, ? FROM slots WHERE id = ? AND starts_at > ?
+                 SELECT id, ?, ? FROM slots WHERE id = ? AND starts_at > CURRENT_TIMESTAMP
                  RETURNING id',
-                [$name, $email, $slotId, Date::now('UTC')->toDateTimeString()],
+                [$name, $email, $slotId],
                 useReadPdo: false,
             );
         } catch (UniqueConstraintViolationException $exception) {
