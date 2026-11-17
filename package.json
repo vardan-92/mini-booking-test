@@ -1,0 +1,23 @@
+{
+    "name": "mini-booking",
+    "private": true,
+    "type": "module",
+    "engines": {
+        "node": "^20.19.0 || >=22.12.0"
+    },
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "dependencies": {
+        "@primeuix/themes": "^2.0.0",
+        "primeicons": "^7.0.0",
+        "primevue": "^4.0.0",
+        "vue": "^3.5.0"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^6.0.0",
+        "laravel-vite-plugin": "^2.0.0",
+        "vite": "^7.0.7"
+    }
+}
